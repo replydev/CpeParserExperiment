@@ -205,39 +205,4 @@ public final class Cpe {
     public int hashCode() {
         return Arrays.hashCode(source);
     }
-
-    // Example Usage
-    public static void main(final String[] args) {
-        final String cpeStr1 = "cpe:2.3:a:apache:http_server:2.4.53:*:*:*:*:*:*:*";
-        final String cpeStr2 = "cpe:2.3:a:apache:http_server:2.4.53:-:*:*:*:*:*:*";
-        final String cpeStr3 = "cpe:2.3:a:microsoft:iis:*:*:*:*:*:*:*:*";
-        final String cpeNaStr = "cpe:2.3:a:vendor:prod:-:*:*:*:*:*:*:*";
-        final String cpeWithWildcardStr = "cpe:2.3:a:vendor:prod:ver_*:*:*:*:*:*:*:*";
-
-        final Cpe cpe1 = Cpe.parse(cpeStr1);
-        final Cpe cpe2 = Cpe.parse(cpeStr2);
-        final Cpe cpe3 = Cpe.parse(cpeStr3);
-        final Cpe cpeNa = Cpe.parse(cpeNaStr);
-        final Cpe cpeWithWildcardValue = Cpe.parse(cpeWithWildcardStr);
-
-        System.out.println("CPE 1: " + cpe1);
-        System.out.println("CPE 2: " + cpe2);
-        System.out.println("CPE 3: " + cpe3);
-        System.out.println("CPE NA: " + cpeNa);
-        System.out.println("CPE Wildcard Value: " + cpeWithWildcardValue);
-
-        System.out.println("\n--- Matching Results ---");
-
-        // ANY matches NA -> true
-        System.out.printf("'%s' matches '%s'? %b\n", cpeStr1, cpeStr2, cpe1.matches(cpe2));
-
-        // Literal parts match, and ANY matches a specific version -> true
-        System.out.printf("'%s' matches '%s'? %b\n", cpeStr3, cpeStr1, cpe3.matches(cpe1));
-
-        // Exact same string -> true
-        System.out.printf("'%s' matches '%s'? %b\n", cpeStr1, cpeStr1, cpe1.matches(cpe1));
-
-        // Test NA vs wildcards -> false
-        System.out.printf("'%s' matches '%s'? %b\n", cpeNaStr, cpeWithWildcardStr, cpeNa.matches(cpeWithWildcardValue));
-    }
 }
