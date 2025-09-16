@@ -1,6 +1,7 @@
 import jdk.incubator.vector.ByteVector;
 import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorSpecies;
+import jdk.incubator.vector.VectorMask;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -66,19 +67,20 @@ public final class Cpe {
 
         // Vectorized search loop
         while (componentIndex < COMPONENT_COUNT - 1 && searchOffset < bytes.length) {
-            // Calculate the remaining length to avoid out-of-bounds access
+            // Determine the valid portion of the vector, for the last chunk.
             final int remaining = bytes.length - searchOffset;
-            final int vectorLength = Math.min(remaining, SPECIES.length());
+            final ByteVector inputVector;
+            final VectorMask<Byte> mask;
 
-            if (vectorLength <= 0) {
-                break; // No more bytes to process
+            if (remaining >= SPECIES.length()) {
+                inputVector = ByteVector.fromArray(SPECIES, bytes, searchOffset);
+                mask = inputVector.compare(VectorOperators.EQ, COLON_VECTOR);
+            } else {
+                // For the tail end of the array, we need a mask to avoid out-of-bounds access.
+                final var tailMask = SPECIES.indexInRange(0, remaining);
+                inputVector = ByteVector.fromArray(SPECIES, bytes, searchOffset, tailMask);
+                mask = inputVector.compare(VectorOperators.EQ, COLON_VECTOR, tailMask);
             }
-
-            // Load a chunk of the source bytes into a vector
-            final ByteVector inputVector = ByteVector.fromArray(SPECIES, bytes, searchOffset, vectorLength);
-
-            // In a single instruction, compare all bytes in the vector to ':'
-            final var mask = inputVector.compare(VectorOperators.EQ, COLON_VECTOR);
 
             if (mask.anyTrue()) {
                 // Found a colon in this vector chunk.
