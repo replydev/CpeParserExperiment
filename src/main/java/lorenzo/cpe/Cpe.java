@@ -171,18 +171,33 @@ public final class Cpe {
     }
 
     /**
-     * A utility method for comparing regions of two byte arrays without allocation.
+     * A utility method for comparing regions of two byte arrays without allocation
+     * and using Vector API.
      */
     private boolean regionMatches(final byte[] b1, final int o1, final int l1, final byte[] b2, final int o2,
             final int l2) {
         if (l1 != l2) {
             return false;
         }
-        for (int i = 0; i < l1; i++) {
+
+        int i = 0;
+        final int bound = SPECIES.loopBound(l1);
+
+        for (; i < bound; i += SPECIES.length()) {
+            final ByteVector v1 = ByteVector.fromArray(SPECIES, b1, o1 + i);
+            final ByteVector v2 = ByteVector.fromArray(SPECIES, b2, o2 + i);
+            if (!v1.compare(VectorOperators.EQ, v2).allTrue()) {
+                return false;
+            }
+        }
+
+        // Handle the tail end
+        for (; i < l1; i++) {
             if (b1[o1 + i] != b2[o2 + i]) {
                 return false;
             }
         }
+
         return true;
     }
 
