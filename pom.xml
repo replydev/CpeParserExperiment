@@ -37,7 +37,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.0</version>
                 <configuration>
@@ -50,6 +49,9 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.3</version>
+                <configuration>
+                    <argLine>--add-modules=jdk.incubator.vector</argLine>
+                </configuration>
             </plugin>
         </plugins>
     </build>
